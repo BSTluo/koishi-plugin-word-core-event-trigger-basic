@@ -1,0 +1,22 @@
+{
+  "name": "koishi-plugin-word-core-event-trigger-basic",
+  "description": "词库引擎，基础触发器扩展",
+  "version": "0.0.1",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "license": "MIT",
+  "scripts": {},
+  "keywords": [
+    "chatbot",
+    "koishi",
+    "plugin"
+  ],
+  "devDependencies": {},
+  "peerDependencies": {
+    "koishi": "4.17.2"
+  }
+}
