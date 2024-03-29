@@ -71,12 +71,37 @@ export async function apply(ctx: Context) {
       return `<at name="${session.username}" /> 保存完成，触发次数${timeNumber}`;
     });
 
-  ctx.command('word', '词库核心！').subcommand('.listtimer', '查询所有的触发器')
-    .example('word.listtimer')
+  ctx.command('word', '词库核心！').subcommand('.stoptimer <triggerWord:string> <timer:string>', '清除一个时间触发词')
+    .example('word.stopTimer 每30秒 "30 * * * * *"')
     .usage([
-      '清除一个时间触发器',
+      '删除一个触发器',
       '时间规则：https://www.jianshu.com/p/02ae7bc3fc43'
     ].join('\n'))
+    .action(async ({ session }, triggerWord, timer) => {
+      if (!session) { return; }
+      if (!triggerWord) { return `<at name="${session.username}" /> 你没有输入触发词`; }
+      if (!timer) { return `<at name="${session.username}" /> 你没有输入corn时间规则`; }
+
+      const list = await ctx.word.config.getConfig('cornConfigList');
+      if (!list[timer]) { return `<at name="${session.username}" /> 此配置为空`; }
+
+      if (!list[timer].hasOwnProperty(triggerWord)) { return `<at name="${session.username}" /> 不存在选择的此触发词`; }
+      delete list[timer][triggerWord];
+
+      await ctx.word.config.updateConfig('cornConfigList', list);
+
+      if (nowList[`${triggerWord}[${timer}]`])
+      {
+        const job = nowList[`${triggerWord}[${timer}]`];
+        job.stop();
+        delete nowList[`${triggerWord}[${timer}]`];
+      }
+
+      return `<at name="${session.username}" /> 保存完成`;
+    });
+
+  ctx.command('word', '词库核心！').subcommand('.listtimer', '查询所有的触发器')
+    .example('word.listtimer')
     .action(async ({ session }, triggerWord, timer) => {
       let msg = '';
       let num = 0;
@@ -86,7 +111,7 @@ export async function apply(ctx: Context) {
         const triggerWord = (matchList[1]) ? matchList[1] : '';
         const timer = (matchList[2]) ? matchList[2] : '';
 
-        msg += `${num}. ${triggerWord} : ${timer}`
+        msg += `${num}. ${triggerWord} : ${timer}`;
       });
 
       return `<at name="${session.username}" /> 当前列表：` + h.text(msg);
