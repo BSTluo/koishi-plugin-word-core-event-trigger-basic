@@ -36,7 +36,7 @@ export async function apply(ctx: Context) {
       const list = await ctx.word.config.getConfig('cornConfigList');
       if (!list[timer]) { list[timer] = {}; }
 
-      list[timer][triggerWord] = { time: timeNumber, channelId: session.channelId };
+      list[timer][triggerWord] = { time: timeNumber, channelId: session.channelId, botSelfId: session.bot.selfId };
 
       await ctx.word.config.updateConfig('cornConfigList', list);
 
@@ -45,22 +45,36 @@ export async function apply(ctx: Context) {
       const job = new CronJob(timer, async () => {
         timeNumber--;
 
-        if (timeNumber == 0)
-        {
+        if (timeNumber == 0) {
           job.stop();
           delete list[timer][triggerWord];
           if (JSON.stringify(timer) == '{}') { delete list[timer]; }
         }
 
+        const botSelfId = list[timer][triggerWord].botSelfId;
+        // let bot: Bot;
+        // ctx.bots.forEach((e: Bot) => {
+        //   if (e.selfId == botSelfId) { return; }
+        //   bot = e
+        // });
+
+        // if (!bot) {bot = ctx.bots[0];}
+        // const session = bot.session()
+
         const a = await ctx.word.driver.start({
           username: timer,
           userId: triggerWord,
           channelId: session.channelId, // 后面从词库获取罢
-          content: triggerWord
+          content: triggerWord,
+          send: session.send,
+          bot: session.bot,
+          event: session.event
+        }, msg => {
+          if (!msg) { return; }
+          session.send(msg);
         });
-        ctx.bots.forEach((e: Bot) => {
-          e.sendMessage(session.channelId, a);
-        });
+
+
 
         await ctx.word.config.updateConfig('cornConfigList', list);
 
@@ -90,8 +104,7 @@ export async function apply(ctx: Context) {
 
       await ctx.word.config.updateConfig('cornConfigList', list);
 
-      if (nowList[`${triggerWord}[${timer}]`])
-      {
+      if (nowList[`${triggerWord}[${timer}]`]) {
         const job = nowList[`${triggerWord}[${timer}]`];
         job.stop();
         delete nowList[`${triggerWord}[${timer}]`];
@@ -119,33 +132,33 @@ export async function apply(ctx: Context) {
 
   const timerTriggerConfig = await ctx.word.config.getConfig('cornConfigList');
 
-  for (let rule in timerTriggerConfig as Object)
-  {
-    for (let q in timerTriggerConfig[rule])
-    {
+  for (let rule in timerTriggerConfig as Object) {
+    for (let q in timerTriggerConfig[rule]) {
       let time = timerTriggerConfig[rule][q].time;
       let channelId = timerTriggerConfig[rule][q].channelId;
 
       const job = new CronJob(rule, async () => {
         time--;
 
-        if (time == 0)
-        {
+        if (time == 0) {
           job.stop();
           delete timerTriggerConfig[rule][q];
           if (JSON.stringify(rule) == '{}') { delete timerTriggerConfig[rule]; }
         }
 
-        const a = await ctx.word.driver.start({
+        await ctx.word.driver.start({
           username: rule,
           userId: q,
           channelId: channelId, // 后面从词库获取罢
           content: q
+        }, msg => {
+          if (!msg) { return; }
+          ctx.bots.forEach((e: Bot) => {
+            e.sendMessage(channelId, msg);
+          });
         });
 
-        ctx.bots.forEach((e: Bot) => {
-          e.sendMessage(channelId, a);
-        });
+
 
         await ctx.word.config.updateConfig('cornConfigList', timerTriggerConfig);
       }, null, true);
