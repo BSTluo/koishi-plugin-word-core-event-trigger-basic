@@ -10,7 +10,8 @@ export const Config: Schema<Config> = Schema.object({});
 
 export const inject = ['word'];
 
-export async function apply(ctx: Context) {
+export async function apply(ctx: Context)
+{
   // write your plugin here
   // ctx.command('test').action(_=>{
   //   ctx.bots.forEach((e: Bot) => {
@@ -26,7 +27,8 @@ export async function apply(ctx: Context) {
       '当到达对应的时间规则时，会触发一个词库的触发词',
       '时间规则：https://www.jianshu.com/p/02ae7bc3fc43'
     ].join('\n'))
-    .action(async ({ session }, triggerWord, timer, time) => {
+    .action(async ({ session }, triggerWord, timer, time) =>
+    {
       if (!session) { return; }
       if (!triggerWord) { return `<at name="${session.username}" /> 你没有输入触发词`; }
       if (!timer) { return `<at name="${session.username}" /> 你没有输入corn时间规则`; }
@@ -42,10 +44,12 @@ export async function apply(ctx: Context) {
 
       // return session.send(`<at name="${session.username}" /> 保存完成，触发次数${timeNumber}`);
 
-      const job = new CronJob(timer, async () => {
+      const job = new CronJob(timer, async () =>
+      {
         timeNumber--;
 
-        if (timeNumber == 0) {
+        if (timeNumber == 0)
+        {
           job.stop();
           delete list[timer][triggerWord];
           if (JSON.stringify(timer) == '{}') { delete list[timer]; }
@@ -69,12 +73,11 @@ export async function apply(ctx: Context) {
           send: session.send,
           bot: session.bot,
           event: session.event
-        }, msg => {
+        }, msg =>
+        {
           if (!msg) { return; }
           session.send(msg);
         });
-
-
 
         await ctx.word.config.updateConfig('cornConfigList', list);
 
@@ -91,7 +94,8 @@ export async function apply(ctx: Context) {
       '删除一个触发器',
       '时间规则：https://www.jianshu.com/p/02ae7bc3fc43'
     ].join('\n'))
-    .action(async ({ session }, triggerWord, timer) => {
+    .action(async ({ session }, triggerWord, timer) =>
+    {
       if (!session) { return; }
       if (!triggerWord) { return `<at name="${session.username}" /> 你没有输入触发词`; }
       if (!timer) { return `<at name="${session.username}" /> 你没有输入corn时间规则`; }
@@ -104,7 +108,8 @@ export async function apply(ctx: Context) {
 
       await ctx.word.config.updateConfig('cornConfigList', list);
 
-      if (nowList[`${triggerWord}[${timer}]`]) {
+      if (nowList[`${triggerWord}[${timer}]`])
+      {
         const job = nowList[`${triggerWord}[${timer}]`];
         job.stop();
         delete nowList[`${triggerWord}[${timer}]`];
@@ -115,11 +120,13 @@ export async function apply(ctx: Context) {
 
   ctx.command('word', '词库核心！').subcommand('.listtimer', '查询所有的触发器')
     .example('word.listtimer')
-    .action(async ({ session }, triggerWord, timer) => {
+    .action(async ({ session }, triggerWord, timer) =>
+    {
       let msg = '';
       let num = 0;
 
-      Object.keys(nowList).forEach(key => {
+      Object.keys(nowList).forEach(key =>
+      {
         const matchList = key.match(/([\s\S]+)\[([\s\S]+)\]/);
         const triggerWord = (matchList[1]) ? matchList[1] : '';
         const timer = (matchList[2]) ? matchList[2] : '';
@@ -132,15 +139,19 @@ export async function apply(ctx: Context) {
 
   const timerTriggerConfig = await ctx.word.config.getConfig('cornConfigList');
 
-  for (let rule in timerTriggerConfig as Object) {
-    for (let q in timerTriggerConfig[rule]) {
+  for (let rule in timerTriggerConfig as Object)
+  {
+    for (let q in timerTriggerConfig[rule])
+    {
       let time = timerTriggerConfig[rule][q].time;
       let channelId = timerTriggerConfig[rule][q].channelId;
 
-      const job = new CronJob(rule, async () => {
+      const job = new CronJob(rule, async () =>
+      {
         time--;
 
-        if (time == 0) {
+        if (time == 0)
+        {
           job.stop();
           delete timerTriggerConfig[rule][q];
           if (JSON.stringify(rule) == '{}') { delete timerTriggerConfig[rule]; }
@@ -151,9 +162,11 @@ export async function apply(ctx: Context) {
           userId: q,
           channelId: channelId, // 后面从词库获取罢
           content: q
-        }, msg => {
+        }, msg =>
+        {
           if (!msg) { return; }
-          ctx.bots.forEach((e: Bot) => {
+          ctx.bots.forEach((e: Bot) =>
+          {
             e.sendMessage(channelId, msg);
           });
         });
