@@ -15,8 +15,8 @@
     "plugin"
   ],
   "peerDependencies": {
-    "koishi": "^4.17.2",
-    "koishi-plugin-word-core": "^1.0.0-alpha.14"
+     "koishi": "^4.17.8",
+    "koishi-plugin-word-core": "^1.0.0-alpha.15"
   },
   "koishi": {
     "service": {
@@ -29,7 +29,7 @@
     "cron": "^3.1.6"
   },
   "devDependencies": {
-    "koishi-plugin-word-core": "1.0.0-alpha.14"
+    "koishi-plugin-word-core": "1.0.0-alpha.15"
   },
   "repository": {
     "type": "git",
