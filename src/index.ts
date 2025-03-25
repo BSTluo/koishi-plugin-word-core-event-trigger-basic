@@ -48,12 +48,7 @@ export async function apply(ctx: Context)
       {
         timeNumber--;
 
-        if (timeNumber == 0)
-        {
-          job.stop();
-          delete list[timer][triggerWord];
-          if (JSON.stringify(timer) == '{}') { delete list[timer]; }
-        }
+
 
         const botSelfId = list[timer][triggerWord].botSelfId;
         // let bot: Bot;
@@ -79,8 +74,14 @@ export async function apply(ctx: Context)
           session.send(msg);
         });
 
-        await ctx.word.config.updateConfig('cornConfigList', list);
+        if (timeNumber == 0)
+        {
+          job.stop();
+          delete list[timer][triggerWord];
+          if (JSON.stringify(timer) == '{}') { delete list[timer]; }
+        }
 
+        await ctx.word.config.updateConfig('cornConfigList', list);
       }, null, true);
 
       nowList[`${triggerWord}[${timer}]`] = job;
