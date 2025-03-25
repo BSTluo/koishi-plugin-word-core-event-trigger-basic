@@ -1,4 +1,4 @@
-import { Bot, Context, Schema, Session, h } from 'koishi';
+import { Bot, Context, Schema, Session, clone, h } from 'koishi';
 import { } from 'koishi-plugin-word-core';
 import { CronJob } from 'cron';
 
@@ -179,4 +179,75 @@ export async function apply(ctx: Context)
       nowList[`${q}[${rule}]`] = job;
     }
   }
+
+  ctx.on('guild-member-added', async (session) =>
+  {
+    const forkSession = session.bot.session(clone(session.event));
+
+    forkSession.content = session.content;
+
+    forkSession.content = '加入群组公屏';
+    await ctx.word.driver.start(forkSession, str =>
+    {
+      if (!str) { return; }
+      forkSession.bot.sendMessage(forkSession.channelId, str);
+    });
+
+    forkSession.content = '加入群组私聊';
+    await ctx.word.driver.start(forkSession, str =>
+    {
+      if (!str) { return; }
+      forkSession.bot.sendPrivateMessage(forkSession.userId, str);
+    });
+
+    forkSession.content = `${forkSession.userId}加入群组公屏`;
+    await ctx.word.driver.start(forkSession, str =>
+    {
+      if (!str) { return; }
+      forkSession.bot.sendMessage(forkSession.channelId, str);
+    });
+
+    forkSession.content = `${forkSession.userId}加入群组私聊`;
+    await ctx.word.driver.start(forkSession, str =>
+    {
+      if (!str) { return; }
+      forkSession.bot.sendPrivateMessage(forkSession.userId, str);
+    });
+  });
+
+  ctx.on('guild-member-removed', async (session) =>
+  {
+    const forkSession = session.bot.session(clone(session.event));
+
+    forkSession.content = session.content;
+
+    forkSession.content = '退出群组公屏';
+    await ctx.word.driver.start(forkSession, str =>
+    {
+      if (!str) { return; }
+      forkSession.bot.sendMessage(forkSession.channelId, str);
+    });
+
+    forkSession.content = '退出群组私聊';
+    await ctx.word.driver.start(forkSession, str =>
+    {
+      if (!str) { return; }
+      forkSession.bot.sendPrivateMessage(forkSession.userId, str);
+    });
+
+    forkSession.content = `${forkSession.userId}退出群组公屏`;
+    await ctx.word.driver.start(forkSession, str =>
+    {
+      if (!str) { return; }
+      forkSession.bot.sendMessage(forkSession.channelId, str);
+    });
+
+    forkSession.content = `${forkSession.userId}退出群组私聊`;
+    await ctx.word.driver.start(forkSession, str =>
+    {
+      if (!str) { return; }
+      forkSession.bot.sendPrivateMessage(forkSession.userId, str);
+    });
+  });
 }
+
