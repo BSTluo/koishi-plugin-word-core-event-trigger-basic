@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-word-core-event-trigger-basic",
   "description": "词库引擎，基础触发器扩展",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -29,7 +29,7 @@
     "cron": "^3.5.1-beta.1"
   },
   "devDependencies": {
-    "koishi-plugin-word-core": "1.0.22"
+    "koishi-plugin-word-core": "^1.0.22"
   },
   "repository": {
     "type": "git",
